@@ -48,22 +48,18 @@ public class StatsClient {
     }
 
     public ResponseEntity<Object> getStats(LocalDateTime start, LocalDateTime end, List<String> uris, Boolean unique) {
-        UriComponentsBuilder builder = UriComponentsBuilder
-                .fromHttpUrl(serverUrl + "/stats")
-                .queryParam("unique", unique)
-                .queryParam("start", start)
-                .queryParam("end", end);
-
+        StringBuilder url = new StringBuilder(serverUrl + "/stats?");
         for (String uri : uris) {
-            builder.queryParam("uris", uri);
+            url.append("&uris=").append(uri);
         }
-
-        String url = builder.toUriString();
+        url.append("&unique=").append(unique);
+        url.append("&start=").append(start);
+        url.append("&end=").append(end);
 
         ResponseEntity<Object> response;
 
         try {
-            response = rest.exchange(url, HttpMethod.GET, null, Object.class);
+            response = rest.exchange(url.toString(), HttpMethod.GET, null, Object.class);
         } catch (HttpStatusCodeException e) {
             log.error("Ошибка при получении статистики");
             return ResponseEntity.status(e.getStatusCode()).body(e.getResponseBodyAsByteArray());
