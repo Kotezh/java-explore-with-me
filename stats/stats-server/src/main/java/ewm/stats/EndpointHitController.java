@@ -6,14 +6,12 @@ import ewm.stats.service.EndpointHitService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
-import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDateTime;
 import java.util.List;
 
 @RestController
-@Validated
 @RequestMapping
 @RequiredArgsConstructor
 public class EndpointHitController {
