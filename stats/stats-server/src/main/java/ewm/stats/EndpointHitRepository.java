@@ -40,6 +40,5 @@ public interface EndpointHitRepository extends JpaRepository<EndpointHit, Long> 
             "ORDER BY COUNT(DISTINCT h.ip) DESC")
     List<StatsDto> getUniqueStatsWithUris(List<String> uris,
                                           LocalDateTime start,
-                                          LocalDateTime end
-                                          );
+                                          LocalDateTime end);
 }

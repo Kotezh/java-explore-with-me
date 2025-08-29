@@ -27,7 +27,7 @@ public class EndpointHitController {
         return service.getStats(start, end, uris, unique);
     }
 
-    @PostMapping("hit")
+    @PostMapping("/hit")
     @ResponseStatus(HttpStatus.CREATED)
     public void hit(@RequestBody @Valid HitDto hitDto) {
         service.hit(hitDto);
