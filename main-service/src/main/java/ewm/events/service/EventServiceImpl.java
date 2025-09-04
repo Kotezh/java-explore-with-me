@@ -27,6 +27,7 @@ import jakarta.servlet.http.HttpServletRequest;
 
 import jakarta.validation.ValidationException;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
@@ -49,6 +50,7 @@ import static ewm.events.enums.PrivateAction.SEND_TO_REVIEW;
 import static ewm.events.enums.State.*;
 import static ewm.requests.enums.RequestStatus.CONFIRMED;
 
+@Slf4j
 @Transactional
 @Service
 @RequiredArgsConstructor
@@ -281,6 +283,7 @@ public class EventServiceImpl implements EventService {
         if (rangeStart != null && rangeEnd != null && rangeStart.isAfter(rangeEnd)) {
             throw new BadRequestException("Некорректный запрос - дата начала позднее даты окончания");
         }
+
         Specification<Event> specification = Specification.where(null);
         if (text != null) {
             specification = specification.and((root, query, criteriaBuilder) ->
@@ -328,7 +331,16 @@ public class EventServiceImpl implements EventService {
                 .map(Event::getCreatedOn)
                 .min(LocalDateTime::compareTo)
                 .orElseThrow(() -> new NotFoundException("Дата начала не найдена"));
+
+        HitDto hitDto = new HitDto(app, request.getRequestURI(), request.getRemoteAddr(), LocalDateTime.now());
+//        statsClient.save(hitDto);
+        log.info("Saving hit: {}", hitDto);
+        ResponseEntity<Object> saveResponse = statsClient.save(hitDto);
+        log.info("Save response: {}", saveResponse.getStatusCode());
+
+        log.info("Getting stats for URIs: {}", uris);
         ResponseEntity<Object> response = statsClient.getStats(start, LocalDateTime.now(), uris, true);
+        log.info("Stats response: {}", response.getBody());
         List<Long> ids = events.stream().map(Event::getId).collect(Collectors.toList());
         Map<Long, Long> confirmedRequests = requestRepository.findAllByEventIdInAndStatus(ids, CONFIRMED)
                 .stream()
@@ -344,9 +356,7 @@ public class EventServiceImpl implements EventService {
                         confirmedRequests.getOrDefault(event.getId(), 0L)));
             }
         }
-        HitDto hitDto = new HitDto(app, request.getRequestURI(), request.getRemoteAddr(),
-                LocalDateTime.now());
-        statsClient.save(hitDto);
+
         return result;
     }
 
@@ -357,6 +367,13 @@ public class EventServiceImpl implements EventService {
         if (event.getState() != PUBLISHED) {
             throw new NotFoundException("Event is not PUBLISHED");
         }
+
+        HitDto hitDto = new HitDto(app, request.getRequestURI(), request.getRemoteAddr(), LocalDateTime.now());
+//        statsClient.save(hitDto);
+        log.info("Saving hit: {}", hitDto);
+        ResponseEntity<Object> saveResponse = statsClient.save(hitDto);
+        log.info("Save response: {}", saveResponse.getStatusCode());
+
         ResponseEntity<Object> response = statsClient.getStats(event.getCreatedOn(), LocalDateTime.now(),
                 List.of(request.getRequestURI()), true);
         List<StatsDto> statsDto = objectMapper.convertValue(response.getBody(), new TypeReference<>() {
@@ -369,9 +386,7 @@ public class EventServiceImpl implements EventService {
             result = eventMapper.mapModelToEventDtoWithViews(event, 0L,
                     requestRepository.countByEventIdAndStatus(eventId, CONFIRMED));
         }
-        HitDto hitDto = new HitDto(app, request.getRequestURI(), request.getRemoteAddr(),
-                LocalDateTime.now());
-        statsClient.save(hitDto);
+
         return result;
     }
 
