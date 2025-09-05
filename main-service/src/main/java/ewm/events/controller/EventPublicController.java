@@ -37,8 +37,7 @@ public class EventPublicController {
         log.info("Запрос событий с фильтрацией и сортировкой text={}, paid={}, categories={}, rangeStart={}, rangeEnd={}, " +
                         "onlyAvailable={}, sort={}, from={}, size={}, request={}",
                         text, paid, categories, rangeStart, rangeEnd, onlyAvailable, sort, from, size, request);
-        return service.getEvents(text, categories, paid, rangeStart, rangeEnd, onlyAvailable,
-                sort, from, size, request);
+        return service.getEvents(text, categories, paid, rangeStart, rangeEnd, onlyAvailable, sort, from, size, request);
     }
 
     @GetMapping("/{eventId}")

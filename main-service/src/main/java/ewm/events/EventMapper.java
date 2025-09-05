@@ -59,7 +59,6 @@ public class EventMapper {
                 .build();
     }
 
-
     public EventViewsDto mapModelToEventDtoWithViews(Event event, Long views, Long confirmedRequests) {
         return EventViewsDto.builder()
                 .id(event.getId())

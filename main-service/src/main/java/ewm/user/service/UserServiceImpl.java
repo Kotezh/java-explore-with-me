@@ -29,6 +29,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public User getUserById(long userId) {
         return userRepository.findById(userId).orElseThrow(() -> new NotFoundException("User не найден"));
     }

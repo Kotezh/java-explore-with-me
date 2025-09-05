@@ -333,14 +333,10 @@ public class EventServiceImpl implements EventService {
                 .orElseThrow(() -> new NotFoundException("Дата начала не найдена"));
 
         HitDto hitDto = new HitDto(app, request.getRequestURI(), request.getRemoteAddr(), LocalDateTime.now());
-//        statsClient.save(hitDto);
-        log.info("Saving hit: {}", hitDto);
-        ResponseEntity<Object> saveResponse = statsClient.save(hitDto);
-        log.info("Save response: {}", saveResponse.getStatusCode());
+        statsClient.save(hitDto);
 
-        log.info("Getting stats for URIs: {}", uris);
         ResponseEntity<Object> response = statsClient.getStats(start, LocalDateTime.now(), uris, true);
-        log.info("Stats response: {}", response.getBody());
+
         List<Long> ids = events.stream().map(Event::getId).collect(Collectors.toList());
         Map<Long, Long> confirmedRequests = requestRepository.findAllByEventIdInAndStatus(ids, CONFIRMED)
                 .stream()
@@ -369,10 +365,7 @@ public class EventServiceImpl implements EventService {
         }
 
         HitDto hitDto = new HitDto(app, request.getRequestURI(), request.getRemoteAddr(), LocalDateTime.now());
-//        statsClient.save(hitDto);
-        log.info("Saving hit: {}", hitDto);
-        ResponseEntity<Object> saveResponse = statsClient.save(hitDto);
-        log.info("Save response: {}", saveResponse.getStatusCode());
+        statsClient.save(hitDto);
 
         ResponseEntity<Object> response = statsClient.getStats(event.getCreatedOn(), LocalDateTime.now(),
                 List.of(request.getRequestURI()), true);
