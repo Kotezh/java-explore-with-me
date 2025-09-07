@@ -333,7 +333,9 @@ public class EventServiceImpl implements EventService {
                 .orElseThrow(() -> new NotFoundException("Дата начала не найдена"));
 
         HitDto hitDto = new HitDto(app, request.getRequestURI(), request.getRemoteAddr(), LocalDateTime.now());
-        statsClient.save(hitDto);
+        log.info("Saving hit: {}", hitDto);
+        ResponseEntity<Object> saveResponse = statsClient.save(hitDto);
+        log.info("Save response: {}", saveResponse.getStatusCode());
 
         ResponseEntity<Object> response = statsClient.getStats(start, LocalDateTime.now(), uris, true);
 
