@@ -1,3 +1,6 @@
+### ветка 3 этапа feature_comments
+### ПР: https://github.com/Kotezh/java-explore-with-me/pull/3
+
 # Explore with Me
 
 В рамках дипломного проекта необходимо разработать приложение ExploreWithMe (англ. «исследуй со мной»).
