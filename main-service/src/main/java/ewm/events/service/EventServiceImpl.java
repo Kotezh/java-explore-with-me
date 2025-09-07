@@ -369,6 +369,12 @@ public class EventServiceImpl implements EventService {
         HitDto hitDto = new HitDto(app, request.getRequestURI(), request.getRemoteAddr(), LocalDateTime.now());
         statsClient.save(hitDto);
 
+        try {
+            Thread.sleep(100); // 100ms для обработки
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+        }
+
         ResponseEntity<Object> response = statsClient.getStats(event.getCreatedOn(), LocalDateTime.now(),
                 List.of(request.getRequestURI()), true);
         List<StatsDto> statsDto = objectMapper.convertValue(response.getBody(), new TypeReference<>() {
