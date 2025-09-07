@@ -372,7 +372,7 @@ public class EventServiceImpl implements EventService {
         }
 
         LocalDateTime startTime = event.getCreatedOn();
-        LocalDateTime endTime = LocalDateTime.now().plusHours(5); // +5 секунд для уверенности
+        LocalDateTime endTime = LocalDateTime.now().plusHours(5); // +5 часов для уверенности
 
         try {
             ResponseEntity<Object> response = statsClient.getStats(startTime, endTime,
