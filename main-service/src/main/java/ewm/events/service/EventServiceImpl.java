@@ -333,9 +333,7 @@ public class EventServiceImpl implements EventService {
                 .orElseThrow(() -> new NotFoundException("Дата начала не найдена"));
 
         HitDto hitDto = new HitDto(app, request.getRequestURI(), request.getRemoteAddr(), LocalDateTime.now());
-        log.info("Saving hit: {}", hitDto);
         ResponseEntity<Object> saveResponse = statsClient.save(hitDto);
-        log.info("Save response: {}", saveResponse.getStatusCode());
 
         ResponseEntity<Object> response = statsClient.getStats(start, LocalDateTime.now(), uris, true);
 
@@ -367,28 +365,32 @@ public class EventServiceImpl implements EventService {
         }
 
         HitDto hitDto = new HitDto(app, request.getRequestURI(), request.getRemoteAddr(), LocalDateTime.now());
-        statsClient.save(hitDto);
+        try {
+            ResponseEntity<Object> saveResponse = statsClient.save(hitDto);
+        } catch (Exception e) {
+            log.error("Error sending hit to stats service: {}", e.getMessage());
+        }
+
+        LocalDateTime startTime = event.getCreatedOn();
+        LocalDateTime endTime = LocalDateTime.now().plusHours(5); // +5 секунд для уверенности
 
         try {
-            Thread.sleep(100); // 100ms для обработки
-        } catch (InterruptedException e) {
-            Thread.currentThread().interrupt();
-        }
+            ResponseEntity<Object> response = statsClient.getStats(startTime, endTime,
+                    List.of(request.getRequestURI()), true);
 
-        ResponseEntity<Object> response = statsClient.getStats(event.getCreatedOn(), LocalDateTime.now(),
-                List.of(request.getRequestURI()), true);
-        List<StatsDto> statsDto = objectMapper.convertValue(response.getBody(), new TypeReference<>() {
-        });
-        EventViewsDto result;
-        if (!statsDto.isEmpty()) {
-            result = eventMapper.mapModelToEventDtoWithViews(event, statsDto.getFirst().getHits(),
-                    requestRepository.countByEventIdAndStatus(eventId, CONFIRMED));
-        } else {
-            result = eventMapper.mapModelToEventDtoWithViews(event, 0L,
+            List<StatsDto> statsDto = objectMapper.convertValue(response.getBody(), new TypeReference<>() {
+            });
+
+            long views = statsDto.isEmpty() ? 0L : statsDto.getFirst().getHits();
+            long confirmedRequests = requestRepository.countByEventIdAndStatus(eventId, CONFIRMED);
+
+            return eventMapper.mapModelToEventDtoWithViews(event, views, confirmedRequests);
+
+        } catch (Exception e) {
+            log.error("Error fetching stats: {}", e.getMessage());
+            return eventMapper.mapModelToEventDtoWithViews(event, 0L,
                     requestRepository.countByEventIdAndStatus(eventId, CONFIRMED));
         }
-
-        return result;
     }
 
     private void validateEventTime(LocalDateTime eventTime) {
