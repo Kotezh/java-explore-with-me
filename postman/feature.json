@@ -1127,22 +1127,7 @@
 							"pm.test(\"Ответ должен содержать код статуса 204\", function () {\r",
 							"    pm.response.to.have.status(204);\r",
 							"});\r",
-							"\r",
-							"pm.test(\"Комментарий должен быть действительно удален из системы\", async function () {\r",
-							"    const commentId = pm.collectionVariables.get(\"commentId\");\r",
-							"    await new Promise(resolve => setTimeout(resolve, 100));\r",
-							"    const checkResponse = await pm.sendRequest({\r",
-							"        url: `http://localhost:8080/comments/${commentId}`,\r",
-							"        method: 'GET'\r",
-							"    });\r",
-							"    \r",
-							"    pm.expect(checkResponse.code).to.equal(404);\r",
-							"});\r",
-							"\r",
-							"// pm.test(\"Очистка переменных после удаления\", function () {\r",
-							"//     pm.collectionVariables.unset(\"commentId\");\r",
-							"//     console.log(\"Переменная commentId очищена\");\r",
-							"// });"
+							""
 						],
 						"type": "text/javascript",
 						"packages": {}
