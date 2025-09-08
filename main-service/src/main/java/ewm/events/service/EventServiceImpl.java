@@ -384,7 +384,6 @@ public class EventServiceImpl implements EventService {
         try {
             ResponseEntity<Object> response = statsClient.getStats(startTime, endTime,
                     List.of(request.getRequestURI()), true);
-
             List<StatsDto> statsDto = objectMapper.convertValue(response.getBody(), new TypeReference<>() {
             });
 
