@@ -30,8 +30,8 @@ public class EndpointHitController {
 
     @PostMapping("/hit")
     @ResponseStatus(HttpStatus.CREATED)
-    public void hit(@RequestBody @Valid HitDto hitDto) {
+    public EndpointHit hit(@RequestBody @Valid HitDto hitDto) {
         log.info("Добавление просмотра события в статистику hitDto={}", hitDto);
-        service.hit(hitDto);
+        return service.hit(hitDto);
     }
 }
