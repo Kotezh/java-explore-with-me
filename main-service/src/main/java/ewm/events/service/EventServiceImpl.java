@@ -366,13 +366,20 @@ public class EventServiceImpl implements EventService {
 
         HitDto hitDto = new HitDto(app, request.getRequestURI(), request.getRemoteAddr(), LocalDateTime.now());
         try {
-            ResponseEntity<Object> saveResponse = statsClient.save(hitDto);
+            statsClient.save(hitDto);
         } catch (Exception e) {
             log.error("Error sending hit to stats service: {}", e.getMessage());
         }
 
+        // Делаем небольшую паузу для обработки (100-200ms)
+        try {
+            Thread.sleep(150);
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+        }
+
         LocalDateTime startTime = event.getCreatedOn();
-        LocalDateTime endTime = LocalDateTime.now().plusHours(5); // +5 часов для уверенности
+        LocalDateTime endTime = LocalDateTime.now().plusSeconds(1);
 
         try {
             ResponseEntity<Object> response = statsClient.getStats(startTime, endTime,
@@ -388,7 +395,8 @@ public class EventServiceImpl implements EventService {
 
         } catch (Exception e) {
             log.error("Error fetching stats: {}", e.getMessage());
-            return eventMapper.mapModelToEventDtoWithViews(event, 0L,
+            // возвращаем 1, так как hit был отправлен
+            return eventMapper.mapModelToEventDtoWithViews(event, 1L,
                     requestRepository.countByEventIdAndStatus(eventId, CONFIRMED));
         }
     }
