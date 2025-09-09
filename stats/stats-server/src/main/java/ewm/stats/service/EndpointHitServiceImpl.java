@@ -39,8 +39,8 @@ public class EndpointHitServiceImpl implements EndpointHitService {
     }
 
     @Override
-    public void hit(HitDto hitDto) {
+    public EndpointHit hit(HitDto hitDto) {
         EndpointHit endpointHit = mapper.mapDtoToModel(hitDto);
-        repository.save(endpointHit);
+        return repository.save(endpointHit);
     }
 }
